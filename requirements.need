@@ -1,5 +1,0 @@
-pygame
-pytorch v1.4.0 - cuda optional
-numpy
-
-run learn.py to start training. Checkpoints are saved every 50 episodes
