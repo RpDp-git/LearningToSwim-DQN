@@ -1,5 +1,5 @@
 # LearningToSwim-DQN
-Training an RL agent to swim at low Reynolds Number with DeepQLearning and experience replay. Microswimmers are tiny(um-scale) particles that are a simple model to study motion at the microscopic level. In low Reynolds numbers environments the drag forces and brownian motion dominate. Microorganisms like bacteria and fungi has evolved to overcome such hurdles and in many cases use them to their advantage to propel and move around.The microwsimmer (here) is propelled by a laser focused on its edges giving it an average velocity in a particular directions relative to the laser point. 
+Training an RL agent to swim at low Reynolds Number with DeepQLearning and experience replay. Microswimmers are tiny(um-scale) particles that are a simple model to study motion at the microscopic level. In low Reynolds numbers environments the drag forces and brownian motion dominate. Microorganisms like bacteria and fungi has evolved to overcome such hurdles and in many cases use them to their advantage to propel and move around.The microwsimmer (here) is propelled by a laser focused on its edges giving it an average velocity in a particular directions relative to the laser point. The goal is to reach the target (blue square) in as few steps as possible.
 
 ![Alt Text](training.gif)
 
