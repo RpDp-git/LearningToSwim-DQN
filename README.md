@@ -3,6 +3,10 @@ Training an RL agent to swim at low Reynolds Number with DeepQLearning and exper
 
 The environment is written in Pygame and many physical parameters like the diffusion coefficient can be found in the class Swimmer. The observation space is continous and has x, y and the distance from the target as its coordinates. The action space has four elements Up,Left,Right,and Down. The agent recieves a reward when it gets closer to the target and a bigger reward when it actually reaches the target. Each episode starts with the swimmer at a random position and ends when it reaches the target/goes out of bounds. Respectable performance is achieved in 400 episodes, where it consecutively reaches the target more than 20 times. 
 
+Neural Network Architecture:
+
+One hidden layer with 100 nodes and a nonLinear activation function. (Not deep really)
+
 Written in pyTorch.
 
 ![Alt Text](training.gif)
