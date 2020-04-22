@@ -5,3 +5,5 @@ The environment is written in Pygame and many physical parameters like the diffu
 
 Written in pyTorch.
 
+![Alt Text](training.gif)
+
