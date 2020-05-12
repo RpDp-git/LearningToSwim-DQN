@@ -31,7 +31,7 @@ class Pw_Agent:
 
         self.gamma = kwargs.get('gamma',1.0)
         self.epsilon = kwargs.get('epsilon',0.0)
-
+        self.tau=11
 
         self.N_batch = 50
 
@@ -91,24 +91,22 @@ class Pw_Agent:
 
     def DQNepisode(self,save_chkpt=False,N_steps=10**4,vid=False):
 
-        #if show_plot:
-            #self.showFig()
-
+        
         R_tot = 0
         self.agent.__init__()
 
         s = self.agent.observation()
         a = self.epsGreedyAction(s)
-        #Iterate automatically puts it in the next state.
+        
         self.agent.action(a)
         r = self.agent.reward
 
         for i in range(N_steps):
 
-            if i%11==0 and i>self.N_batch:
+            if i%self.tau==0 and i>self.N_batch:
                 self.updateTargetNetwork()
 
-            self.epsilon *= .99
+            
             R_tot += r
             s_next = self.agent.observation()
             a_next = self.epsGreedyAction(s_next)
@@ -137,14 +135,14 @@ class Pw_Agent:
                     param.grad.data.clamp_(-1, 1)
                 self.optimizer.step()
 
-                s = s_next
-                a = a_next
-                self.agent.action(a)
-                r = self.agent.reward
+            s = s_next
+            a = a_next
+            self.agent.action(a)
+            
 
-                if self.agent.done:
+            if self.agent.done:
 
-                    break
+                break
         #print('puck-target dist: {:.2f}, R_tot/N_steps: {:.2f}'.format(self.agent.dS,R_tot/N_steps))
         if vid :
             env.render(self.agent.loc_history)
