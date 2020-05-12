@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-import pandas as pd
 
 class Swimmer:
 
@@ -24,6 +23,7 @@ class Swimmer:
         self.done=False
         self.dS = self.get_dS([self.x,self.y])
         self.initdS=self.dS
+        self.reason='Max Steps'
 
     def observation(self):
         return [self.x,self.y,self.dS]
@@ -111,5 +111,9 @@ class Swimmer:
             self.loc_history.append([self.x,self.y,self._laserx,self._lasery])
 
             if self.reward_map(self.state)== 100 or self.reward_map(self.state)== -100 :
+                if self.reward_map(self.state)== 100 :
+                    self.reason = 'GOAL'
+                else :
+                    self.reason = 'DEAD'
                 self.reward += self.reward_map(self.state)*100
                 self.done=True
