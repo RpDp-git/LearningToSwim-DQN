@@ -146,4 +146,4 @@ class Pw_Agent:
         #print('puck-target dist: {:.2f}, R_tot/N_steps: {:.2f}'.format(self.agent.dS,R_tot/N_steps))
         if vid :
             env.render(self.agent.loc_history)
-        return(R_tot)
+        return(R_tot,self.agent.reason)
