@@ -10,6 +10,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 import SwimmerWorldv1
 import visualize as env
+import time
+
+
 
 class DQN(nn.Module):
 
@@ -31,27 +34,30 @@ class Pw_Agent:
 
         self.gamma = kwargs.get('gamma',1.0)
         self.epsilon = kwargs.get('epsilon',0.0)
-        self.tau=11
 
-        self.N_batch = 50
 
+        self.N_batch = 15
+        self.Tau=15
+        self.learning_rate=0.00025
+        self.epsdecay=0.991
         self.initLearningParams()
 
 
     def initLearningParams(self):
 
         self.dtype = torch.float64
-        self.device = torch.device("cuda")
+        self.device = torch.device("cpu")
 
         torch.set_default_dtype(self.dtype)
         torch.set_default_tensor_type(torch.DoubleTensor)
 
-        D_in, H, D_out = 3, 100, 4
+        D_in, H, D_out = 2, 100, 4
         self.policy_NN = DQN(D_in,H,D_out)
         self.target_NN = DQN(D_in,H,D_out)
+
         self.target_NN.load_state_dict(self.policy_NN.state_dict())
         self.target_NN.eval()
-        self.optimizer = optim.RMSprop(self.policy_NN.parameters(),lr=0.001)
+        self.optimizer = optim.RMSprop(self.policy_NN.parameters(),lr=self.learning_rate)
         self.samples_Q = []
 
 
@@ -89,24 +95,35 @@ class Pw_Agent:
     def getRandomAction(self):
         return(randint(0,3))
 
+    def get_hyperparams(self):
+        k = 'alpha = {} gamma = {} Tau = {} epsilon decay = {}'.format(self.learning_rate,self.gamma,self.Tau,self.epsdecay)
+        return k
+
     def DQNepisode(self,save_chkpt=False,N_steps=10**4,vid=False):
 
-        
+      
+
         R_tot = 0
         self.agent.__init__()
 
         s = self.agent.observation()
         a = self.epsGreedyAction(s)
-        
+        #Iterate automatically puts it in the next state.
         self.agent.action(a)
         r = self.agent.reward
+        at=[]
+        loss=list()
 
         for i in range(N_steps):
 
-            if i%self.tau==0 and i>self.N_batch:
+            if i%self.Tau==0 and i>self.N_batch:
                 self.updateTargetNetwork()
 
-            
+            if self.agent.done:
+                if self.epsilon>0.015:
+                    self.epsilon*=self.epsdecay
+                break
+
             R_tot += r
             s_next = self.agent.observation()
             a_next = self.epsGreedyAction(s_next)
@@ -115,7 +132,7 @@ class Pw_Agent:
             self.samples_Q.append(experience)
 
             if len(self.samples_Q)>=2*self.N_batch:
-
+                #t1=time.time()
                 #Get random batch
                 batch_Q_samples = sample(self.samples_Q,self.N_batch)
                 states = torch.Tensor(np.array([samp[0] for samp in batch_Q_samples]))
@@ -128,6 +145,7 @@ class Pw_Agent:
                 Q_next = torch.max(self.forwardPassQFrozen(states_next),dim=1)[0]
 
                 TD0_error = F.smooth_l1_loss(Q_cur,(rewards + self.gamma*Q_next).detach())
+                loss.append(TD0_error.item())
 
                 self.optimizer.zero_grad()
                 TD0_error.backward()
@@ -137,13 +155,17 @@ class Pw_Agent:
 
             s = s_next
             a = a_next
+
             self.agent.action(a)
-            
+            r = self.agent.reward
 
-            if self.agent.done:
 
-                break
-        #print('puck-target dist: {:.2f}, R_tot/N_steps: {:.2f}'.format(self.agent.dS,R_tot/N_steps))
+
+
+    
         if vid :
             env.render(self.agent.loc_history)
-        return(R_tot,self.agent.reason)
+
+        if loss==list():
+            return(self.agent.reason,R_tot,0)
+        return(self.agent.reason,R_tot,np.mean(loss))
