@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import pandas as pd
 
 class Swimmer:
 
@@ -23,10 +24,10 @@ class Swimmer:
         self.done=False
         self.dS = self.get_dS([self.x,self.y])
         self.initdS=self.dS
-        self.reason='Max Steps'
+        self.reason = 'no'
 
     def observation(self):
-        return [self.x,self.y,self.dS]
+        return [self.x,self.y]
 
     def get_dS(self,a):
         dx=a[0]-self.targetx
@@ -103,17 +104,19 @@ class Swimmer:
             self.state = self.find_state(position=particles[i,:2])
             _dS = self.get_dS(particles[i,:2])
 
-            self.reward = -_dS/self.initdS * 10
+            if self.reward_map(self.state)== 100 or self.reward_map(self.state)== -100 :
+                self.reward = self.reward_map(self.state)*10
+                if self.reward_map(self.state)== 100 :
+                    self.reason='GOAL'
+                else :
+                    self.reason ='DEAD'
+                self.done=True
+
+            else :
+
+                self.reward = -_dS/100
 
             self.x = particles[i,0]
             self.y = particles[i,1]
             self.dS = self.get_dS([self.x,self.y])
             self.loc_history.append([self.x,self.y,self._laserx,self._lasery])
-
-            if self.reward_map(self.state)== 100 or self.reward_map(self.state)== -100 :
-                if self.reward_map(self.state)== 100 :
-                    self.reason = 'GOAL'
-                else :
-                    self.reason = 'DEAD'
-                self.reward += self.reward_map(self.state)*100
-                self.done=True
