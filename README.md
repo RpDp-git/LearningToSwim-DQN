@@ -12,4 +12,7 @@ One hidden layer with 100 nodes and a nonLinear activation function. (Not deep r
 Written in pyTorch.
 
 
+Update 19/05 :
 
+The state space has been reduced to two dimensions, the success rate (in the last 50 epochs) hits the 100% mark around 320-350 epochs.
+Added Tensorboard functionality to monitor ongoing training stats.
