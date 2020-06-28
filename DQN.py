@@ -108,7 +108,7 @@ class Pw_Agent:
 
         s = self.agent.observation()
         a = self.epsGreedyAction(s)
-        #Iterate automatically puts it in the next state.
+        
         self.agent.action(a)
         r = self.agent.reward
         at=[]
@@ -133,7 +133,7 @@ class Pw_Agent:
 
             if len(self.samples_Q)>=2*self.N_batch:
                 #t1=time.time()
-                #Get random batch
+                
                 batch_Q_samples = sample(self.samples_Q,self.N_batch)
                 states = torch.Tensor(np.array([samp[0] for samp in batch_Q_samples]))
                 actions = [samp[1] for samp in batch_Q_samples]
